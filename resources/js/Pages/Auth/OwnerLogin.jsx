@@ -6,11 +6,12 @@ export default function OwnerLogin() {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
+        remember: false,
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('login.owner'));  // Post to owner login route
+        post(route('login.owner'));  // Ensure this matches your backend route
     };
 
     return (
@@ -50,9 +51,27 @@ export default function OwnerLogin() {
                     </div>
                 )}
 
+                <div style={{ marginTop: '10px' }}>
+                    <Link href={route('password.request')} className="text-sm text-blue-600 hover:underline">
+                        Forgot your password?
+                    </Link>
+                </div>
+
                 <button type="submit" disabled={processing} style={{ marginTop: '10px' }}>
                     {processing ? 'Logging in...' : 'Login'}
                 </button>
+
+                <div style={{ marginTop: '10px' }}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            checked={data.remember}
+                            onChange={(e) => setData('remember', e.target.checked)}
+                        />
+                        Remember me
+                    </label>
+                </div>
             </form>
         </div>
     );

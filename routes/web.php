@@ -129,11 +129,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Additional Role-Based Access with Custom Middleware
 |--------------------------------------------------------------------------
 */
-Route::middleware(['redirect.unauthorized'])->group(function () {
-    Route::get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
-    Route::get('/owner/dashboard', fn () => Inertia::render('Owner/Dashboard'))->name('owner.dashboard');
-    Route::get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
-});
+// Route::middleware(['redirect.unauthorized'])->group(function () {
+//     Route::get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
+//     Route::get('/owner/dashboard', fn () => Inertia::render('Owner/Dashboard'))->name('owner.dashboard');
+//     Route::get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
+// });
 
 /*
 |--------------------------------------------------------------------------
