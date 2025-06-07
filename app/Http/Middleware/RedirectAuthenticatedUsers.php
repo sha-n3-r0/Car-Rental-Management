@@ -10,35 +10,29 @@ class RedirectAuthenticatedUsers
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if the user is authenticated
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Redirect based on the role of the authenticated user
-            if ($user->role === 'customer') {
-                return redirect()->route('customer.dashboard');  // Redirect to customer dashboard
+            // Only redirect if user is verified
+            if ($user->hasVerifiedEmail()) {
+                switch ($user->role) {
+                    case 'customer':
+                        return redirect()->route('customer.dashboard');
+                    case 'owner':
+                        return redirect()->route('owner.dashboard');
+                    case 'staff':
+                        return redirect()->route('staff.dashboard');
+                    default:
+                        return redirect()->route('home');
+                }
             }
 
-            if ($user->role === 'owner') {
-                return redirect()->route('owner.dashboard');  // Redirect to owner dashboard
-            }
-
-            if ($user->role === 'staff') {
-                return redirect()->route('staff.dashboard');  // Redirect to staff dashboard
-            }
-
-            // Default redirection in case no role matches (fallback to a general dashboard or home)
-            return redirect()->route('home');
+            // If user is logged in but not verified, let them proceed
         }
 
         return $next($request);
     }
 }
-

@@ -1,5 +1,3 @@
-// resources/js/Pages/Auth/VerifyEmailNotice.jsx
-
 import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
 
@@ -30,6 +28,12 @@ export default function VerifyEmailNotice({ email }) {
     });
   };
 
+  const cancelVerification = () => {
+    if (confirm('Are you sure you want to cancel and go to login page?')) {
+      router.post(route('verification.cancel.login'));
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-xl">
       <h1 className="text-2xl font-bold mb-4">Email Verification Required</h1>
@@ -54,6 +58,14 @@ export default function VerifyEmailNotice({ email }) {
           {isSending ? 'Sending...' : 'Resend Verification Email'}
         </button>
       </form>
+
+      <button
+        type="button" // Important: prevent form submission
+        onClick={cancelVerification}
+        className="mt-4 ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Cancel and Go Back to Login
+      </button>
     </div>
   );
 }

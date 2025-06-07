@@ -34,6 +34,17 @@ export default function VerifyEmail() {
           Resend Verification Email
         </button>
       </form>
+      <button
+        type="button" // IMPORTANT: prevent submitting the form!
+        onClick={() => {
+          if (confirm('Are you sure you want to cancel and go back to registration?')) {
+            router.post(route('verification.cancel'));
+          }
+        }}
+        className="mt-4 ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Cancel and Go Back to Registration
+      </button>
     </div>
   );
 }

@@ -47,7 +47,7 @@ Route::middleware(['redirect.authenticated'])->group(function () {
     Route::post('/login/customer', [AuthenticatedSessionController::class, 'store'])->name('login.customer');
 
     Route::get('/owner/login', fn () => Inertia::render('Auth/OwnerLogin'))->name('owner.login');
-    Route::post('/login/owner', [AuthenticatedSessionController::class, 'store'])->name('login.owner');
+    Route::post('/login/owneraaaaa', [AuthenticatedSessionController::class, 'store'])->name('login.owner');
 
     Route::get('/staff/login', fn () => Inertia::render('Auth/StaffLogin'))->name('staff.login');
     Route::post('/login/staff', [AuthenticatedSessionController::class, 'store'])->name('login.staff');
@@ -123,6 +123,53 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:staff')->get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
     Route::middleware('role:customer')->get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Cancel Verification
+|--------------------------------------------------------------------------
+*/
+Route::post('/cancel-verification', function (Request $request) {
+    $user = $request->user();
+
+    // Optionally delete user if not verified
+    // if (! $user->hasVerifiedEmail()) {
+    //     $user->delete();
+    // }
+
+    Auth::logout();
+
+    Session::invalidate();
+    Session::regenerateToken();
+
+    return match ($user->role) {
+        'customer' => redirect('/customer/register'),
+        'owner'    => redirect('/owner/register'),
+        'staff'    => redirect('/staff/register'),
+        default    => redirect('/'),
+    };
+})->middleware('auth')->name('verification.cancel');
+
+Route::post('/cancel-verification-login', function (Request $request) {
+    $user = $request->user();
+
+    // Optionally delete user if not verified
+    // if (! $user->hasVerifiedEmail()) {
+    //     $user->delete();
+    // }
+
+    Auth::logout();
+
+    Session::invalidate();
+    Session::regenerateToken();
+
+    return match ($user->role) {
+        'customer' => redirect('/customer/login'),
+        'owner'    => redirect('/owner/login'),
+        'staff'    => redirect('/staff/login'),
+        default    => redirect('/login'),
+    };
+})->middleware('auth')->name('verification.cancel.login');
 
 /*
 |--------------------------------------------------------------------------
