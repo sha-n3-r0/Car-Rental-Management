@@ -20,6 +20,22 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('home');
+
+Route::get('/fleet', function () {
+    return Inertia::render('Fleet');
+})->name('fleet');
+
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+})->name('contact');
+
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about');
+
 /*
 |--------------------------------------------------------------------------
 | Registration Routes
@@ -153,11 +169,6 @@ Route::post('/cancel-verification', function (Request $request) {
 Route::post('/cancel-verification-login', function (Request $request) {
     $user = $request->user();
 
-    // Optionally delete user if not verified
-    // if (! $user->hasVerifiedEmail()) {
-    //     $user->delete();
-    // }
-
     Auth::logout();
 
     Session::invalidate();
@@ -175,12 +186,6 @@ Route::post('/cancel-verification-login', function (Request $request) {
 |--------------------------------------------------------------------------
 | Additional Role-Based Access with Custom Middleware
 |--------------------------------------------------------------------------
-*/
-// Route::middleware(['redirect.unauthorized'])->group(function () {
-//     Route::get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
-//     Route::get('/owner/dashboard', fn () => Inertia::render('Owner/Dashboard'))->name('owner.dashboard');
-//     Route::get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
-// });
 
 /*
 |--------------------------------------------------------------------------

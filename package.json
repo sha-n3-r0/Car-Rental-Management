@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "ziggy:generate": "php artisan ziggy:generate > resources/js/ziggy.js"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",
@@ -25,6 +26,7 @@
     "dependencies": {
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/react": "^2.0.11",
-        "@vitejs/plugin-react": "^4.5.0"
+        "@vitejs/plugin-react": "^4.5.0",
+        "ziggy-js": "^2.5.3"
     }
 }
