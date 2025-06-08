@@ -31,11 +31,15 @@ class RedirectIfUnauthorized
             if ($request->is('customer/*')) {
                 return redirect()->route('customer.login'); // Redirect to customer login
             }
+            
+            if ($request->is('email/verify*')) {
+                // redirect to customer login, or adjust based on intended role
+                return redirect()->route('customer.login');
+            }
 
             // Default fallback to general login
-            return redirect()->route('login');
+            return redirect()->route('customer.login');
         }
-
         return $next($request);
     }
 }

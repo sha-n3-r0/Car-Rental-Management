@@ -1,7 +1,10 @@
-// resources/js/Pages/Auth/VerifyEmail.jsx
+// VerifyEmail.jsx
 
 import React from 'react';
 import { usePage, router } from '@inertiajs/react';
+import { route } from 'ziggy-js';   
+import { Ziggy } from '@/ziggy'; 
+
 
 export default function VerifyEmail() {
   const { props } = usePage();
@@ -9,7 +12,7 @@ export default function VerifyEmail() {
 
   const resendVerification = (e) => {
     e.preventDefault();
-    router.post(route('verification.send'));
+    router.post(route('verification.notice.register', {}, false, Ziggy));
   };
 
   return (
@@ -38,7 +41,7 @@ export default function VerifyEmail() {
         type="button" // IMPORTANT: prevent submitting the form!
         onClick={() => {
           if (confirm('Are you sure you want to cancel and go back to registration?')) {
-            router.post(route('verification.cancel'));
+            router.post(route('verification.notice.register', {}, false, Ziggy));
           }
         }}
         className="mt-4 ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"

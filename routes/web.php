@@ -5,21 +5,14 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VerificationController;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Session;
 
 // Home (Public)
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
@@ -35,6 +28,16 @@ Route::get('/contact', function () {
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
+
+/*
+|--------------------------------------------------------------------------
+| Sign in with google
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +66,7 @@ Route::middleware(['redirect.authenticated'])->group(function () {
     Route::post('/login/customer', [AuthenticatedSessionController::class, 'store'])->name('login.customer');
 
     Route::get('/owner/login', fn () => Inertia::render('Auth/OwnerLogin'))->name('owner.login');
-    Route::post('/login/owneraaaaa', [AuthenticatedSessionController::class, 'store'])->name('login.owner');
+    Route::post('/login/owner', [AuthenticatedSessionController::class, 'store'])->name('login.owner');
 
     Route::get('/staff/login', fn () => Inertia::render('Auth/StaffLogin'))->name('staff.login');
     Route::post('/login/staff', [AuthenticatedSessionController::class, 'store'])->name('login.staff');
@@ -75,11 +78,6 @@ Route::middleware(['redirect.authenticated'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Show "Verify Email" Page
-// Route::get('/email/verify', function () {
-//     return Inertia::render('Auth/VerifyEmail');
-// })->middleware('auth')->name('verification.notice');
-
 // For post-registration
 Route::get('/email/verify', function () {
     // DON'T redirect if user is verified
@@ -90,10 +88,20 @@ Route::get('/email/verify', function () {
     ]);
 })->middleware('auth')->name('verification.notice');
 
-// For after-login, still unverified
 Route::get('/email/verify/notice', function () {
+    $user = auth()->user();
+
+    if ($user->hasVerifiedEmail()) {
+        return match ($user->role) {
+            'customer' => redirect()->route('customer.dashboard'),
+            'owner'    => redirect()->route('owner.dashboard'),
+            'staff'    => redirect()->route('staff.dashboard'),
+            default    => redirect('/dashboard'),
+        };
+    }
+
     return Inertia::render('Auth/VerifyEmailNotice', [
-        'email' => auth()->user()->email,
+        'email' => $user->email,
         'status' => session('status'),
     ]);
 })->middleware('auth')->name('verification.notice.afterlogin');
@@ -148,11 +156,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('/cancel-verification', function (Request $request) {
     $user = $request->user();
 
-    // Optionally delete user if not verified
-    // if (! $user->hasVerifiedEmail()) {
-    //     $user->delete();
-    // }
-
     Auth::logout();
 
     Session::invalidate();
@@ -164,21 +167,20 @@ Route::post('/cancel-verification', function (Request $request) {
         'staff'    => redirect('/staff/register'),
         default    => redirect('/'),
     };
-})->middleware('auth')->name('verification.cancel');
+})->middleware('auth')->name('verification.notice.register');
 
 Route::post('/cancel-verification-login', function (Request $request) {
     $user = $request->user();
 
     Auth::logout();
-
     Session::invalidate();
     Session::regenerateToken();
 
     return match ($user->role) {
         'customer' => redirect('/customer/login'),
-        'owner'    => redirect('/owner/login'),
-        'staff'    => redirect('/staff/login'),
-        default    => redirect('/login'),
+        'owner'    => redirect()->route('owner.login'),
+        'staff'    => redirect()->route('staff.login'),
+        default    => redirect()->route('/'),
     };
 })->middleware('auth')->name('verification.cancel.login');
 
@@ -186,6 +188,7 @@ Route::post('/cancel-verification-login', function (Request $request) {
 |--------------------------------------------------------------------------
 | Additional Role-Based Access with Custom Middleware
 |--------------------------------------------------------------------------
+*/
 
 /*
 |--------------------------------------------------------------------------

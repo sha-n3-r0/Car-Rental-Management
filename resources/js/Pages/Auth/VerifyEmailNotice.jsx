@@ -1,3 +1,5 @@
+// VerifyEmailNotice.jsx
+
 import React, { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
 

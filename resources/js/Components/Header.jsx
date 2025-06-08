@@ -1,0 +1,26 @@
+import React from 'react';
+import { Link } from '@inertiajs/react';
+
+export default function Header({ auth }) {
+  return (
+    <header className="flex flex-col lg:flex-row justify-between items-center py-6 px-6 space-y-4 lg:space-y-0 bg-white">
+      <nav className="flex space-x-6">
+        <Link href={route('home')} className="hover:underline text-black">Home</Link>
+        <Link href={route('fleet')} className="hover:underline text-black">Fleet</Link>
+        <Link href={route('contact')} className="hover:underline text-black">Contact Us</Link>
+        <Link href={route('about')} className="hover:underline text-black">About Us</Link>
+      </nav>
+
+      <div className="flex space-x-4">
+        {auth.user ? (
+          <Link href={route('dashboard')} className="hover:underline text-black">Dashboard</Link>
+        ) : (
+          <>
+            <Link href={route('customer.login')} className="hover:underline text-black">Log in</Link>
+            <Link href={route('customer.register')} className="hover:underline text-black">Register</Link>
+          </>
+        )}
+      </div>
+    </header>
+  );
+}

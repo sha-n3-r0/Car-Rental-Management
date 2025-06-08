@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
         if (!$user->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice.afterlogin')->with('status', 'unverified');
+            return redirect()->route('verification.notice.login')->with('status', 'unverified');
         }
 
         // Role check
@@ -83,10 +83,10 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect based on role
         return match ($user->role) {
-            'customer' => redirect()->route('customer.login'),  // Redirect customer to login
-            'owner' => redirect()->route('owner.login'),        // Redirect owner to login
-            'staff' => redirect()->route('staff.login'),        // Redirect staff to login
-            default => redirect()->route('login'),              // Default to general login
+                'customer' => redirect()->route('customer.login'),  // Redirect customer to login
+                'owner' => redirect()->route('owner.login'),        // Redirect owner to login
+                'staff' => redirect()->route('staff.login'),        // Redirect staff to login
+            default => redirect()->route('customer.login'),         // Default to general login
         };
     }
 }
