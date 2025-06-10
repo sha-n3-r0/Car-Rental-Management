@@ -10,7 +10,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VerificationController;
 use Inertia\Inertia;
+use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\OwnerController;
 
 // Home (Public)
 Route::get('/', function () {
@@ -38,105 +41,14 @@ Route::get('/about', function () {
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
-
 /*
 |--------------------------------------------------------------------------
-| Registration Routes
+| Protected Routes (Authenticated + Verified Users Only)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['redirect.authenticated'])->group(function () {
-    Route::get('/customer/register', [RegisteredUserController::class, 'createCustomer'])->name('customer.register');
-    Route::post('/register/customer', [RegisteredUserController::class, 'storeCustomer'])->name('register.customer');
-
-    Route::get('/owner/register', [RegisteredUserController::class, 'createOwner'])->name('owner.register');
-    Route::post('/register/owner', [RegisteredUserController::class, 'storeOwner'])->name('register.owner');
-
-    Route::get('/staff/register', [RegisteredUserController::class, 'createStaff'])->name('staff.register');
-    Route::post('/register/staff', [RegisteredUserController::class, 'storeStaff'])->name('register.staff');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Login Routes with Redirect Middleware
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['redirect.authenticated'])->group(function () {
-    Route::get('/customer/login', fn () => Inertia::render('Auth/CustomerLogin'))->name('customer.login');
-    Route::post('/login/customer', [AuthenticatedSessionController::class, 'store'])->name('login.customer');
-
-    Route::get('/owner/login', fn () => Inertia::render('Auth/OwnerLogin'))->name('owner.login');
-    Route::post('/login/owner', [AuthenticatedSessionController::class, 'store'])->name('login.owner');
-
-    Route::get('/staff/login', fn () => Inertia::render('Auth/StaffLogin'))->name('staff.login');
-    Route::post('/login/staff', [AuthenticatedSessionController::class, 'store'])->name('login.staff');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Email Verification Routes
-|--------------------------------------------------------------------------
-*/
-
-// For post-registration
-Route::get('/email/verify', function () {
-    // DON'T redirect if user is verified
-    // Just always return the VerifyEmail view
-    return Inertia::render('Auth/VerifyEmail', [
-        'status' => session('status'),
-        'isVerified' => auth()->user()->hasVerifiedEmail(),
-    ]);
-})->middleware('auth')->name('verification.notice');
-
-Route::get('/email/verify/notice', function () {
-    $user = auth()->user();
-
-    if ($user->hasVerifiedEmail()) {
-        return match ($user->role) {
-            'customer' => redirect()->route('customer.dashboard'),
-            'owner'    => redirect()->route('owner.dashboard'),
-            'staff'    => redirect()->route('staff.dashboard'),
-            default    => redirect('/dashboard'),
-        };
-    }
-
-    return Inertia::render('Auth/VerifyEmailNotice', [
-        'email' => $user->email,
-        'status' => session('status'),
-    ]);
-})->middleware('auth')->name('verification.notice.afterlogin');
-
-// Handle Email Verification Link
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-
-    $user = $request->user();
-
-    switch ($user->role) {
-        case 'customer':
-            return redirect()->route('customer.dashboard');
-        case 'owner':
-            return redirect()->route('owner.dashboard');
-        case 'staff':
-            return redirect()->route('staff.dashboard');
-        default:
-            return redirect('/dashboard'); // fallback
-    }
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-// Resend verification email
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('status', 'verification-link-sent');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Auth + Verified)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Email verification code submission route
+    // Email verification via code (if needed)
     Route::post('/verify-email', [VerificationController::class, 'verify'])->name('verify.email');
 
     // General dashboard
@@ -146,49 +58,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:owner')->get('/owner/dashboard', fn () => Inertia::render('Owner/Dashboard'))->name('owner.dashboard');
     Route::middleware('role:staff')->get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
     Route::middleware('role:customer')->get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
+
+    Route::middleware(['auth', 'role:customer'])->group(function () {
+        Route::get('/customer/profile', [CustomerController::class, 'edit'])->name('customer.profile');
+        Route::post('/customer/profile/update', [CustomerController::class, 'update'])->name('customer.profile.update');
+    });
+
+    Route::middleware(['auth', 'role:owner'])->group(function () {
+        Route::get('/owner/profile', [OwnerController::class, 'edit'])->name('owner.profile');
+        Route::post('/owner/profile/update', [OwnerController::class, 'update'])->name('owner.profile.update');
+    });
+
+    Route::middleware(['auth', 'role:staff'])->group(function () {
+        Route::get('/staff/profile', [StaffController::class, 'edit'])->name('staff.profile');
+        Route::post('/staff/profile/update', [StaffController::class, 'update'])->name('staff.profile.update');
+    });
 });
 
-/*
-|--------------------------------------------------------------------------
-| Cancel Verification
-|--------------------------------------------------------------------------
-*/
-Route::post('/cancel-verification', function (Request $request) {
-    $user = $request->user();
-
-    Auth::logout();
-
-    Session::invalidate();
-    Session::regenerateToken();
-
-    return match ($user->role) {
-        'customer' => redirect('/customer/register'),
-        'owner'    => redirect('/owner/register'),
-        'staff'    => redirect('/staff/register'),
-        default    => redirect('/'),
-    };
-})->middleware('auth')->name('verification.notice.register');
-
-Route::post('/cancel-verification-login', function (Request $request) {
-    $user = $request->user();
-
-    Auth::logout();
-    Session::invalidate();
-    Session::regenerateToken();
-
-    return match ($user->role) {
-        'customer' => redirect('/customer/login'),
-        'owner'    => redirect()->route('owner.login'),
-        'staff'    => redirect()->route('staff.login'),
-        default    => redirect()->route('/'),
-    };
-})->middleware('auth')->name('verification.cancel.login');
-
-/*
-|--------------------------------------------------------------------------
-| Additional Role-Based Access with Custom Middleware
-|--------------------------------------------------------------------------
-*/
 
 /*
 |--------------------------------------------------------------------------

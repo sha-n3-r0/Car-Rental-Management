@@ -6,17 +6,26 @@ use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request; 
 
 class GoogleController extends Controller
 {
-    public function redirectToGoogle()
+    public function redirectToGoogle(Request $request)
     {
+        // Get role from query, default to customer
+        $role = $request->query('role', 'customer');
+
+        // Store role in session to retrieve after callback
+        session(['oauth_role' => $role]);
+
         return Socialite::driver('google')->redirect();
     }
-
     public function handleGoogleCallback()
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
+
+        // Retrieve role from session, default to 'customer'
+        $role = session('oauth_role', 'customer');
 
         $user = User::firstOrCreate(
             ['email' => $googleUser->getEmail()],
@@ -24,15 +33,18 @@ class GoogleController extends Controller
                 'name' => $googleUser->getName(),
                 'google_id' => $googleUser->getId(),
                 'password' => bcrypt(str()->random(24)),
+                'role' => $role,
             ]
         );
 
-        $isNewUser = $user->wasRecentlyCreated;
-
         Auth::login($user);
 
+        // Clear the session role so it doesn't persist unexpectedly
+        session()->forget('oauth_role');
+
+        $isNewUser = $user->wasRecentlyCreated;
+
         if (!$user->hasVerifiedEmail()) {
-            // 👇 Go to the correct verification view based on context
             return redirect()->route($isNewUser ? 'verification.notice' : 'verification.notice.afterlogin');
         }
 
