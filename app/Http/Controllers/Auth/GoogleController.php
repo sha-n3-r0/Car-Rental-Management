@@ -20,30 +20,44 @@ class GoogleController extends Controller
 
         return Socialite::driver('google')->redirect();
     }
+
     public function handleGoogleCallback()
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
-        // Retrieve role from session, default to 'customer'
         $role = session('oauth_role', 'customer');
 
+        // Find or create user by email
         $user = User::firstOrCreate(
             ['email' => $googleUser->getEmail()],
             [
                 'name' => $googleUser->getName(),
-                'google_id' => $googleUser->getId(),
                 'password' => bcrypt(str()->random(24)),
+                'password_set' => false,  // <-- Added here
                 'role' => $role,
+                'provider' => 'google',
             ]
         );
 
+        // Update google_id if missing or changed
+        if (!$user->google_id || $user->google_id !== $googleUser->getId()) {
+            $user->google_id = $googleUser->getId();
+            $user->save();
+        }
+
+        // Mark email as verified if coming from Google and not verified yet
+        if (is_null($user->email_verified_at)) {
+            $user->markEmailAsVerified();
+        }
+
         Auth::login($user);
 
-        // Clear the session role so it doesn't persist unexpectedly
         session()->forget('oauth_role');
 
         $isNewUser = $user->wasRecentlyCreated;
 
+        // No need to check verification anymore since marked verified, 
+        // but if you want extra logic, keep this:
         if (!$user->hasVerifiedEmail()) {
             return redirect()->route($isNewUser ? 'verification.notice' : 'verification.notice.afterlogin');
         }

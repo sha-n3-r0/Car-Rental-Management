@@ -3,7 +3,7 @@ import { Inertia } from '@inertiajs/inertia';
 import { usePage, Link } from '@inertiajs/react';
 
 export default function CustomerProfile() {
-  const { customer, profile_picture_url } = usePage().props;
+  const { customer, profile_picture_url, has_password } = usePage().props;
 
   const [name, setName] = useState(customer.name || '');
   const [email, setEmail] = useState(customer.email || '');
@@ -11,6 +11,10 @@ export default function CustomerProfile() {
   const [dateOfBirth, setDateOfBirth] = useState(customer.date_of_birth || '');
   const [address, setAddress] = useState(customer.address || '');
   const [profilePicture, setProfilePicture] = useState(null);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleFileChange = (e) => {
     setProfilePicture(e.target.files[0]);
@@ -30,6 +34,14 @@ export default function CustomerProfile() {
       formData.append('profile_picture', profilePicture);
     }
 
+    if (newPassword) {
+      if (has_password) {
+        formData.append('current_password', currentPassword);
+      }
+      formData.append('new_password', newPassword);
+      formData.append('new_password_confirmation', confirmPassword);
+    }
+
     Inertia.post('/customer/profile/update', formData, {
       forceFormData: true,
     });
@@ -39,7 +51,6 @@ export default function CustomerProfile() {
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
       <h1>Edit Profile</h1>
 
-      {/* Show current profile picture */}
       {profile_picture_url && (
         <div style={{ marginBottom: '1rem' }}>
           <label>Current Profile Picture:</label><br />
@@ -54,40 +65,22 @@ export default function CustomerProfile() {
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div style={{ marginBottom: '1rem' }}>
           <label>Name:</label><br />
-          <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            required
-          />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} required />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Email:</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Phone Number:</label><br />
-          <input
-            type="text"
-            value={phoneNumber}
-            onChange={e => setPhoneNumber(e.target.value)}
-          />
+          <input type="text" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Date of Birth:</label><br />
-          <input
-            type="date"
-            value={dateOfBirth}
-            onChange={e => setDateOfBirth(e.target.value)}
-          />
+          <input type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
@@ -107,6 +100,41 @@ export default function CustomerProfile() {
             name="profile_picture"
             onChange={handleFileChange}
             accept="image/*"
+          />
+        </div>
+
+        <hr style={{ margin: '2rem 0' }} />
+        <h3>Change Password (optional)</h3>
+
+        {has_password && (
+          <div style={{ marginBottom: '1rem' }}>
+            <label>Current Password:</label><br />
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+            />
+          </div>
+        )}
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>New Password:</label><br />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            placeholder="Enter new password"
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>Confirm New Password:</label><br />
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
           />
         </div>
 

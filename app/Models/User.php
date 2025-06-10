@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'phone_number',
         'date_of_birth',
+        'password_set',
         'address',
         'profile_picture',
     ];
@@ -43,14 +44,10 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password_set' => 'boolean',
+    ];
     /**
      * Override the email verification notification to send the custom one.
      */
