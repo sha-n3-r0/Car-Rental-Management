@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 
@@ -27,25 +28,38 @@ class GoogleController extends Controller
 
         $role = session('oauth_role', 'customer');
 
-        // Find or create user by email
-        $user = User::firstOrCreate(
-            ['email' => $googleUser->getEmail()],
-            [
-                'name' => $googleUser->getName(),
-                'password' => bcrypt(str()->random(24)),
-                'password_set' => false,  // <-- Added here
-                'role' => $role,
-                'provider' => 'google',
-            ]
-        );
+        // Try to find user by Google ID first
+        $user = User::where('google_id', $googleUser->id)->first();
 
-        // Update google_id if missing or changed
-        if (!$user->google_id || $user->google_id !== $googleUser->getId()) {
-            $user->google_id = $googleUser->getId();
-            $user->save();
+        if ($user) {
+            // Update email if changed
+            if ($user->email !== $googleUser->email) {
+                $user->email = $googleUser->email;
+                $user->save();
+            }
+        } else {
+            // Try to find user by email
+            $user = User::where('email', $googleUser->email)->first();
+
+            if ($user) {
+                // Link Google ID to existing user
+                $user->google_id = $googleUser->id;
+                $user->save();
+            } else {
+                // Create a new user
+                $user = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'google_id' => $googleUser->id,
+                    'password' => bcrypt(Str::random(24)),
+                    'password_set' => false,
+                    'role' => $role,
+                    'provider' => 'google',
+                ]);
+            }
         }
 
-        // Mark email as verified if coming from Google and not verified yet
+        // Mark email as verified if not yet verified
         if (is_null($user->email_verified_at)) {
             $user->markEmailAsVerified();
         }
@@ -56,8 +70,7 @@ class GoogleController extends Controller
 
         $isNewUser = $user->wasRecentlyCreated;
 
-        // No need to check verification anymore since marked verified, 
-        // but if you want extra logic, keep this:
+        // Optional email check logic if needed
         if (!$user->hasVerifiedEmail()) {
             return redirect()->route($isNewUser ? 'verification.notice' : 'verification.notice.afterlogin');
         }

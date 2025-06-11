@@ -6,7 +6,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\CustomVerifyEmail;  // Import your custom notification
+use App\Notifications\CustomVerifyEmail; 
+use App\Notifications\EmailChangeRequest;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_set',
         'address',
         'profile_picture',
+        'new_email',  
     ];
 
     /**
@@ -54,5 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new CustomVerifyEmail());
+    }
+    public function sendEmailVerificationNotificationToNewEmail()
+    {
+        $this->notify(new \App\Notifications\EmailChangeRequest($this, $this->new_email));
     }
 }

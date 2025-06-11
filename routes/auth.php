@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\EmailChangeVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -181,6 +182,9 @@ Route::post('/email/verification-notification', function (Request $request) {
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
+Route::get('/email/change/verify', [EmailChangeVerificationController::class, 'verify'])
+    ->name('email.change.verify')
+    ->middleware('signed');
 /*
 |--------------------------------------------------------------------------
 | Cancel Email Verification

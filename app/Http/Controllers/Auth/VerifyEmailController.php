@@ -48,7 +48,7 @@ class VerifyEmailController extends Controller
             'customer' => route('customer.dashboard'),
             'owner'    => route('owner.dashboard'),
             'staff'    => route('staff.dashboard'),
-            default    => '/dashboard', // fallback
+            default    => '/', // fallback
         };
     }
 }

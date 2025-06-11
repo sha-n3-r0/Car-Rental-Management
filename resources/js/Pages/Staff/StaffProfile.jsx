@@ -3,7 +3,7 @@ import { Inertia } from '@inertiajs/inertia';
 import { usePage, Link } from '@inertiajs/react';
 
 export default function StaffProfile() {
-  const { staff, profile_picture_url } = usePage().props;
+  const { staff, profile_picture_url, has_password } = usePage().props;
 
   const [name, setName] = useState(staff.name || '');
   const [email, setEmail] = useState(staff.email || '');
@@ -11,6 +11,10 @@ export default function StaffProfile() {
   const [dateOfBirth, setDateOfBirth] = useState(staff.date_of_birth || '');
   const [address, setAddress] = useState(staff.address || '');
   const [profilePicture, setProfilePicture] = useState(null);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleFileChange = (e) => {
     setProfilePicture(e.target.files[0]);
@@ -28,6 +32,14 @@ export default function StaffProfile() {
 
     if (profilePicture) {
       formData.append('profile_picture', profilePicture);
+    }
+
+    if (newPassword) {
+      if (has_password) {
+        formData.append('current_password', currentPassword);
+      }
+      formData.append('new_password', newPassword);
+      formData.append('new_password_confirmation', confirmPassword);
     }
 
     Inertia.post('/staff/profile/update', formData, {
@@ -106,6 +118,41 @@ export default function StaffProfile() {
             name="profile_picture"
             onChange={handleFileChange}
             accept="image/*"
+          />
+        </div>
+
+        <hr style={{ margin: '2rem 0' }} />
+        <h3>Change Password (optional)</h3>
+
+        {has_password && (
+          <div style={{ marginBottom: '1rem' }}>
+            <label>Current Password:</label><br />
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+            />
+          </div>
+        )}
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>New Password:</label><br />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Enter new password"
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>Confirm New Password:</label><br />
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
           />
         </div>
 
