@@ -65,47 +65,29 @@ export default function StaffProfile() {
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div style={{ marginBottom: '1rem' }}>
           <label>Name:</label><br />
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} required />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Email:</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Phone Number:</label><br />
-          <input
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
+          <input type="text" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Date of Birth:</label><br />
-          <input
-            type="date"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-          />
+          <input type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
           <label>Address:</label><br />
           <textarea
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={e => setAddress(e.target.value)}
             rows="3"
             style={{ width: '100%' }}
           />
@@ -130,7 +112,7 @@ export default function StaffProfile() {
             <input
               type="password"
               value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              onChange={e => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
             />
           </div>
@@ -141,7 +123,7 @@ export default function StaffProfile() {
           <input
             type="password"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={e => setNewPassword(e.target.value)}
             placeholder="Enter new password"
           />
         </div>
@@ -151,17 +133,21 @@ export default function StaffProfile() {
           <input
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={e => setConfirmPassword(e.target.value)}
             placeholder="Confirm new password"
           />
         </div>
 
-        <button type="submit" style={{ padding: '0.5rem 1rem' }}>Update Profile</button>
+        <button type="submit" style={{ padding: '0.5rem 1rem' }}>
+          Update Profile
+        </button>
       </form>
 
       <div style={{ marginTop: '2rem' }}>
         <Link href="/staff/dashboard">
-          <button type="button" style={{ padding: '0.5rem 1rem' }}>← Back to Dashboard</button>
+          <button type="button" style={{ padding: '0.5rem 1rem' }}>
+            ← Back to Dashboard
+          </button>
         </Link>
       </div>
     </div>

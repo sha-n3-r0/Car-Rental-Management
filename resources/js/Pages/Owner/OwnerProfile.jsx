@@ -138,7 +138,9 @@ export default function OwnerProfile() {
           />
         </div>
 
-        <button type="submit" style={{ padding: '0.5rem 1rem' }}>Update Profile</button>
+        <button type="submit" style={{ padding: '0.5rem 1rem' }}>
+          Update Profile
+        </button>
       </form>
 
       <div style={{ marginTop: '2rem' }}>
