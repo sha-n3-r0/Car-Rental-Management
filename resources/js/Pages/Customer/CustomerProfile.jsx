@@ -2,45 +2,63 @@ import React, { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia';
 import { usePage, Link } from '@inertiajs/react';
 
+import ProfilePictureDisplay from './components/ProfilePictureDisplay';
+import BasicInformationForm from './components/BasicInformationForm';
+import PasswordUpdateForm from './components/PasswordUpdateForm';
+import LicenseInformationForm from './components/LicenseInformationForm';
+
 export default function CustomerProfile() {
-  const { customer, profile_picture_url, has_password } = usePage().props;
+  const { customer, profile_picture_url, has_password, license } = usePage().props;
 
-  const [name, setName] = useState(customer.name || '');
-  const [email, setEmail] = useState(customer.email || '');
-  const [phoneNumber, setPhoneNumber] = useState(customer.phone_number || '');
-  const [dateOfBirth, setDateOfBirth] = useState(customer.date_of_birth || '');
-  const [address, setAddress] = useState(customer.address || '');
   const [profilePicture, setProfilePicture] = useState(null);
+  const [licenseImage, setLicenseImage] = useState(null);
+  const [licenseImageBack, setLicenseImageBack] = useState(null);
 
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [basicInfo, setBasicInfo] = useState({
+    name: customer.name || '',
+    email: customer.email || '',
+    phone_number: customer.phone_number || '',
+    date_of_birth: customer.date_of_birth || '',
+    basic_address: customer.address || '', // ✅ Renamed to basic_address
+  });
 
-  const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
-  };
+  const [passwordInfo, setPasswordInfo] = useState({
+    current: '',
+    new: '',
+    confirm: '',
+  });
+
+  const [licenseInfo, setLicenseInfo] = useState({
+    license_number: license?.license_number || '',
+    license_type: license?.license_type || '',
+    license_class: license?.license_class || '',
+    issued_date: license?.issued_date || '',
+    expiry_date: license?.expiry_date || '',
+    name_on_license: license?.name_on_license || '',
+    birth_date: license?.birth_date || '',
+    license_address: license?.address || '', // ✅ Renamed to license_address
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('phone_number', phoneNumber);
-    formData.append('date_of_birth', dateOfBirth);
-    formData.append('address', address);
 
-    if (profilePicture) {
-      formData.append('profile_picture', profilePicture);
+    // Basic Info
+    Object.entries(basicInfo).forEach(([key, value]) => formData.append(key, value));
+    if (profilePicture) formData.append('profile_picture', profilePicture);
+
+    // Password
+    if (passwordInfo.new) {
+      if (has_password) formData.append('current_password', passwordInfo.current);
+      formData.append('new_password', passwordInfo.new);
+      formData.append('new_password_confirmation', passwordInfo.confirm);
     }
 
-    if (newPassword) {
-      if (has_password) {
-        formData.append('current_password', currentPassword);
-      }
-      formData.append('new_password', newPassword);
-      formData.append('new_password_confirmation', confirmPassword);
-    }
+    // License
+    Object.entries(licenseInfo).forEach(([key, value]) => formData.append(key, value));
+    if (licenseImage) formData.append('license_image', licenseImage);
+    if (licenseImageBack) formData.append('license_image_back', licenseImageBack);
 
     Inertia.post('/customer/profile/update', formData, {
       forceFormData: true,
@@ -48,102 +66,31 @@ export default function CustomerProfile() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
+    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '2rem' }}>
       <h1>Edit Profile</h1>
 
-      {profile_picture_url && (
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Current Profile Picture:</label><br />
-          <img
-            src={profile_picture_url}
-            alt="Profile"
-            style={{ maxWidth: '150px', borderRadius: '8px', marginTop: '0.5rem' }}
-          />
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Name:</label><br />
-          <input type="text" value={name} onChange={e => setName(e.target.value)} required />
-        </div>
+        <ProfilePictureDisplay url={profile_picture_url} setPicture={setProfilePicture} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Email:</label><br />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-        </div>
+        <BasicInformationForm data={basicInfo} setData={setBasicInfo} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Phone Number:</label><br />
-          <input type="text" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
-        </div>
+        <PasswordUpdateForm data={passwordInfo} setData={setPasswordInfo} hasPassword={has_password} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Date of Birth:</label><br />
-          <input type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} />
-        </div>
+        <LicenseInformationForm
+          data={licenseInfo}
+          setData={setLicenseInfo}
+          setLicenseImage={setLicenseImage}
+          setLicenseImageBack={setLicenseImageBack}
+        />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Address:</label><br />
-          <textarea
-            value={address}
-            onChange={e => setAddress(e.target.value)}
-            rows="3"
-            style={{ width: '100%' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Profile Picture:</label><br />
-          <input
-            type="file"
-            name="profile_picture"
-            onChange={handleFileChange}
-            accept="image/*"
-          />
-        </div>
-
-        <hr style={{ margin: '2rem 0' }} />
-        <h3>Change Password (optional)</h3>
-
-        {has_password && (
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Current Password:</label><br />
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              placeholder="Enter current password"
-            />
-          </div>
-        )}
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>New Password:</label><br />
-          <input
-            type="password"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Confirm New Password:</label><br />
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-          />
-        </div>
-
-        <button type="submit" style={{ padding: '0.5rem 1rem' }}>Update Profile</button>
+        <button type="submit" style={{ marginTop: '1.5rem', padding: '0.5rem 1rem' }}>
+          Update Profile
+        </button>
       </form>
 
       <div style={{ marginTop: '2rem' }}>
         <Link href="/customer/dashboard">
-          <button type="button" style={{ padding: '0.5rem 1rem' }}>← Back to Dashboard</button>
+          <button type="button">← Back to Dashboard</button>
         </Link>
       </div>
     </div>

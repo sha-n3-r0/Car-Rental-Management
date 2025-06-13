@@ -61,4 +61,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new \App\Notifications\EmailChangeRequest($this, $this->new_email));
     }
+
+    //Relationship to license Model
+    public function license()
+    {
+        return $this->hasOne(UserLicense::class);
+    }
 }

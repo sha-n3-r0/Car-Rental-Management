@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\OwnerController;
+use Illuminate\Support\Facades\Broadcast;
 
 use App\Http\Controllers\Owner\BookingController as OwnerBookingController;
-use App\Http\Controllers\Owner\UserController as OwnerUserController;
+use App\Http\Controllers\Owner\UserController as OwnerUserController;   
 use App\Http\Controllers\Owner\VehicleController as OwnerVehicleController;
 use App\Http\Controllers\Owner\FleetController as OwnerFleetController;
 use App\Http\Controllers\Owner\ReportController as OwnerReportController;
@@ -49,10 +50,9 @@ Route::get('/reserve', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Sign in with google
+| Sign in with Google
 |--------------------------------------------------------------------------
 */
-
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
@@ -61,7 +61,6 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 | Protected Routes (Authenticated + Verified Users Only)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])->group(function () {
     // Email verification via code (if needed)
     Route::post('/verify-email', [VerificationController::class, 'verify'])->name('verify.email');
@@ -74,36 +73,44 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:staff')->get('/staff/dashboard', fn () => Inertia::render('Staff/Dashboard'))->name('staff.dashboard');
     Route::middleware('role:customer')->get('/customer/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('customer.dashboard');
 
-    Route::middleware(['auth', 'role:customer'])->group(function () {
+    // Notification mark-as-read route
+    Route::post('/notifications/{id}/read', function ($id) {
+        auth()->user()->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+        return response()->json(['status' => 'success']);
+    })->name('notifications.read');
+    
+    // Customer routes
+    Route::middleware(['role:customer'])->group(function () {
         Route::get('/customer/profile', [CustomerController::class, 'edit'])->name('customer.profile');
         Route::post('/customer/profile/update', [CustomerController::class, 'update'])->name('customer.profile.update');
     });
 
-    Route::middleware(['auth', 'role:owner'])->group(function () {
-        Route::get('/owner/profile', [OwnerController::class, 'edit'])->name('owner.profile');
-        Route::post('/owner/profile/update', [OwnerController::class, 'update'])->name('owner.profile.update');
-        Route::get('/owner/bookings', [OwnerBookingController::class, 'index'])->name('owner.bookings');
-        Route::get('/owner/users', [OwnerUserController::class, 'index'])->name('owner.users');
-        Route::get('/owner/vehicles', [OwnerVehicleController::class, 'index'])->name('owner.vehicles');
-        Route::get('/owner/fleet', [OwnerFleetController::class, 'index'])->name('owner.fleet');
-        Route::get('/owner/reports', [OwnerReportController::class, 'index'])->name('owner.reports');
+    // Owner routes
+    Route::prefix('owner')->name('owner.')->middleware(['role:owner'])->group(function () {
+        Route::get('/profile', [OwnerController::class, 'edit'])->name('profile');
+        Route::post('/profile/update', [OwnerController::class, 'update'])->name('profile.update');
+
+        Route::get('/bookings', [OwnerBookingController::class, 'index'])->name('bookings');
+        Route::get('/users', [OwnerUserController::class, 'index'])->name('users');
+        Route::get('/vehicles', [OwnerVehicleController::class, 'index'])->name('vehicles');
+        Route::get('/fleet', [OwnerFleetController::class, 'index'])->name('fleet');
+        Route::get('/reports', [OwnerReportController::class, 'index'])->name('reports');
+
+        // Owner User management routes (show + update)
+        Route::get('/users/{user}', [OwnerUserController::class, 'show'])->name('users.show'); 
+        Route::put('/users/{user}', [OwnerUserController::class, 'update'])->name('users.update');
     });
 
-        Route::get('/whoami', function () {
-            return [
-                'user' => auth()->user(),
-                'roles' => auth()->user()?->getRoleNames(),
-            ];
-        });
+    // Staff routes
+    Route::prefix('staff')->name('staff.')->middleware(['role:staff'])->group(function () {
+        Route::get('/profile', [StaffController::class, 'edit'])->name('profile');
+        Route::post('/profile/update', [StaffController::class, 'update'])->name('profile.update');
 
-    Route::middleware(['auth', 'role:staff'])->group(function () {
-        Route::get('/staff/profile', [StaffController::class, 'edit'])->name('staff.profile');
-        Route::post('/staff/profile/update', [StaffController::class, 'update'])->name('staff.profile.update');
-        Route::get('/staff/bookings', [StaffBookingController::class, 'index'])->name('staff.bookings');
-        Route::get('/staff/users', [StaffUserController::class, 'index'])->name('staff.users');
-        Route::get('/staff/vehicles', [StaffVehicleController::class, 'index'])->name('staff.vehicles');
-        Route::get('/staff/fleet', [StaffFleetController::class, 'index'])->name('staff.fleet');
-        Route::get('/staff/reports', [StaffReportController::class, 'index'])->name('staff.reports');
+        Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings');
+        Route::get('/users', [StaffUserController::class, 'index'])->name('users');
+        Route::get('/vehicles', [StaffVehicleController::class, 'index'])->name('vehicles');
+        Route::get('/fleet', [StaffFleetController::class, 'index'])->name('fleet');
+        Route::get('/reports', [StaffReportController::class, 'index'])->name('reports');
     });
 });
 

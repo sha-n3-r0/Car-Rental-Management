@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\EmailChangeVerificationController;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
 | Guest Routes (Unauthenticated Users)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->group(function () {
 
     // General register route with role-based redirection if already logged in
@@ -89,6 +91,13 @@ Route::middleware('auth')->group(function () {
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    // ✅ Register the broadcasting auth route for private channels
+    Broadcast::routes();
+
+    Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+        return (int) $user->id === (int) $id;
+    });
 });
 
 /*
