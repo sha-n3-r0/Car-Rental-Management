@@ -169,7 +169,7 @@ Route::get('/email/verify/notice', function () {
         'email' => $user->email,
         'status' => session('status'),
     ]);
-})->middleware('auth')->name('verification.notice.afterlogin');
+})->middleware('auth')->name('verification.notice.login');
 
 // Verify email via link
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -225,7 +225,7 @@ Route::post('/cancel-verification-login', function (Request $request) {
     Session::regenerateToken();
 
     return match ($user->role) {
-        'customer' => redirect('customer.login'),
+        'customer' => redirect()->route('customer.login'),
         'owner'    => redirect()->route('owner.login'),
         'staff'    => redirect()->route('staff.login'),
         default    => redirect()->route('/'),

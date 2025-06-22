@@ -9,59 +9,65 @@ const OwnerLayout = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="flex justify-between items-center p-4 border-b bg-white shadow">
-        <h1 className="font-bold text-xl">Owner Dashboard</h1>
+      <header className="flex justify-between items-center p-4 bg-white border-b shadow">
+        <h1 className="text-xl font-bold">Owner Dashboard</h1>
         <NotificationBell />
       </header>
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <nav className="w-64 bg-gray-800 text-white p-6">
-          <h2 className="text-2xl font-bold mb-6">CL Carhub Rental</h2>
-          <ul className="space-y-4">
-            <li>
-              <Link href={route('owner.dashboard')} className="hover:underline">
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link href={route('owner.bookings')} className="hover:underline">
-                Booking Management
-              </Link>
-            </li>
-            <li>
-              <Link href={route('owner.users')} className="hover:underline">
-                User Management
-              </Link>
-            </li>
-            <li>
-              <Link href={route('owner.vehicles')} className="hover:underline">
-                Vehicle Management
-              </Link>
-            </li>
-            <li>
-              <Link href={route('owner.fleet')} className="hover:underline">
-                Fleet Tracking & Maintenance
-              </Link>
-            </li>
-            <li>
-              <Link href={route('owner.reports')} className="hover:underline">
-                Reports & Analytics
-              </Link>
-            </li>
-          </ul>
+        <aside className="w-64 bg-gray-800 text-white flex flex-col p-6">
+          <h2 className="text-2xl font-bold mb-8">CL Carhub Rental</h2>
+
+          <nav className="flex-1">
+            <ul className="space-y-4">
+              <li>
+                <Link href={route('owner.dashboard')} className="hover:underline">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href={route('owner.bookings')} className="hover:underline">
+                  Booking Management
+                </Link>
+              </li>
+              <li>
+                <Link href={route('owner.users')} className="hover:underline">
+                  User Management
+                </Link>
+              </li>
+              <li>
+                <Link href={route('owner.vehicles')} className="hover:underline">
+                  Vehicle Management
+                </Link>
+              </li>
+              <li>
+                <Link href={route('owner.fleet')} className="hover:underline">
+                  Fleet Tracking & Maintenance
+                </Link>
+              </li>
+              <li>
+                <Link href={route('owner.reports')} className="hover:underline">
+                  Reports & Analytics
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
           <button
             onClick={handleLogout}
-            className="mt-10 bg-red-600 px-4 py-2 rounded hover:bg-red-700"
+            className="mt-8 bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition"
           >
             Logout
           </button>
-        </nav>
+        </aside>
 
-        {/* Main content */}
-        <main className="flex-1 bg-gray-100 p-8 overflow-auto">{children}</main>
+        {/* Main Content */}
+        <main className="flex-1 bg-gray-100 p-8 overflow-y-auto">
+          {children}
+        </main>
       </div>
     </div>
   );

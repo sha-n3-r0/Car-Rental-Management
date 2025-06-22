@@ -1,26 +1,33 @@
 import React, { useEffect } from 'react';
 import { usePage, router } from '@inertiajs/react';
-import { route } from 'ziggy-js';   
+import { route } from 'ziggy-js';
 
 export default function VerifyEmail() {
   const { props } = usePage();
   const status = props.status;
   const isVerified = props.isVerified;
+  const role = props.role;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      router.reload({ only: ['isVerified'] }); // Only reload the verification status
-    }, 5000); // check every 5 seconds
+      router.reload({ only: ['isVerified'] }); // Check email status every 5 seconds
+    }, 5000);
 
-    return () => clearInterval(interval); // cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     if (isVerified) {
-      // Redirect to dashboard depending on role, or a general one
-      router.visit('/email/verify/notice'); // you already have logic there that redirects by role
+      // Redirect based on role once verified
+      const redirectPath = {
+        customer: route('customer.dashboard'),
+        owner: route('owner.dashboard'),
+        staff: route('staff.dashboard'),
+      }[role] || '/dashboard';
+
+      router.visit(redirectPath);
     }
-  }, [isVerified]);
+  }, [isVerified, role]);
 
   const resendVerification = (e) => {
     e.preventDefault();
@@ -55,6 +62,7 @@ export default function VerifyEmail() {
           Resend Verification Email
         </button>
       </form>
+
       <button
         type="button"
         onClick={cancelVerification}

@@ -48,23 +48,28 @@ export default function NotificationBell() {
   const unreadCount = notifications.filter((n) => !n.read_at).length;
 
   const handleClick = (notif) => {
-    const url = notif?.data?.url || null;
-    const userId = notif?.data?.user_id || null;
-
     axios.post(route('notifications.read', notif.id))
       .then(() => {
         setNotifications((prev) => prev.filter(n => n.id !== notif.id));
 
-        if (url) {
-          router.visit(url);
-        } else if (userId) {
-          Inertia.visit(route('owner.users.show', userId));
+        // Role-based redirect
+        if (auth.user.role === 'customer') {
+          router.visit(route('customer.profile'));
+        } else if (notif.data?.url) {
+          router.visit(notif.data.url);
+        } else if (notif.data?.user_id) {
+          // Example: owner user show page
+          router.visit(route('owner.users.show', notif.data.user_id));
+        } else {
+          // fallback to dashboard or homepage
+          router.visit(route('dashboard'));
         }
       })
       .catch((err) => {
         console.error('Failed to mark notification as read:', err);
       });
   };
+
 
   return (
     <div className="relative" ref={dropdownRef}>

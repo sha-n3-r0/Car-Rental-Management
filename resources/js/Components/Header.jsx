@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
+import NotificationBell from '@/Components/NotificationBell';
 
 export default function Header({ auth }) {
   const handleLogout = () => {
@@ -20,6 +21,7 @@ export default function Header({ auth }) {
       <div className="flex space-x-4 items-center">
         {auth?.user ? (
           <>
+            <NotificationBell />
             <Link href={route('customer.dashboard')} className="hover:underline text-black">Dashboard</Link>
             <Link href={route('customer.profile')} className="hover:underline text-black">Profile</Link>
             <button

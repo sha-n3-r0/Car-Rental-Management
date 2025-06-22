@@ -1,13 +1,8 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import StaffLayout from '@/Layouts/StaffLayout'; 
-import { Inertia } from '@inertiajs/inertia';
 
 const Dashboard = ({ message, auth }) => {
-  const handleLogout = () => {
-    Inertia.post('/logout');
-  };
-
   return (
     <>
       <Head title="Staff Dashboard" />
@@ -33,13 +28,6 @@ const Dashboard = ({ message, auth }) => {
               Go to Profile
             </a>
           </div>
-
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
         </div>
       </StaffLayout>
     </>

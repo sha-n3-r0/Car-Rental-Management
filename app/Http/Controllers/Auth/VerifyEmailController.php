@@ -12,20 +12,6 @@ class VerifyEmailController extends Controller
     /**
      * Mark the authenticated user's email address as verified.
      */
-    // public function __invoke(EmailVerificationRequest $request): RedirectResponse
-    // {
-    //     if ($request->user()->hasVerifiedEmail()) {
-    //         // Redirect to customer login page if already verified
-    //         return redirect()->route('customer.login')->with('verified', 1);
-    //     }
-
-    //     if ($request->user()->markEmailAsVerified()) {
-    //         event(new Verified($request->user()));
-    //     }
-
-    //     // Redirect to customer login page after successful verification
-    //     return redirect()->route('customer.login')->with('verified', 1);
-    // }
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         $user = $request->user();

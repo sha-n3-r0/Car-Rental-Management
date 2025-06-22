@@ -8,24 +8,20 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\VerificationController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\OwnerController;
 use Illuminate\Support\Facades\Broadcast;
-
 use App\Http\Controllers\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Owner\UserController as OwnerUserController;   
 use App\Http\Controllers\Owner\VehicleController as OwnerVehicleController;
 use App\Http\Controllers\Owner\FleetController as OwnerFleetController;
 use App\Http\Controllers\Owner\ReportController as OwnerReportController;
 use App\Http\Controllers\Staff\BookingController as StaffBookingController;
-use App\Http\Controllers\Staff\UserController as StaffUserController;
 use App\Http\Controllers\Staff\VehicleController as StaffVehicleController;
 use App\Http\Controllers\Staff\FleetController as StaffFleetController;
-use App\Http\Controllers\Staff\ReportController as StaffReportController;
 
 // Home (Public)
 Route::get('/', function () {
@@ -48,22 +44,22 @@ Route::get('/reserve', function () {
     return Inertia::render('Reserve');
 })->name('reserve');
 
+Broadcast::routes(['middleware' => ['auth']]);
+
 /*
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 | Sign in with Google
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 */
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 /*
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 | Protected Routes (Authenticated + Verified Users Only)
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Email verification via code (if needed)
-    Route::post('/verify-email', [VerificationController::class, 'verify'])->name('verify.email');
 
     // General dashboard
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
@@ -96,9 +92,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/fleet', [OwnerFleetController::class, 'index'])->name('fleet');
         Route::get('/reports', [OwnerReportController::class, 'index'])->name('reports');
 
-        // Owner User management routes (show + update)
-        Route::get('/users/{user}', [OwnerUserController::class, 'show'])->name('users.show'); 
-        Route::put('/users/{user}', [OwnerUserController::class, 'update'])->name('users.update');
+        // Owner User management routes (show, create, update, and delete)
+        Route::get('/users/create', [OwnerUserController::class, 'create'])->name('users.create');  // Create new user
+        Route::post('/users', [OwnerUserController::class, 'store'])->name('users.store');  // Store the new user
+        Route::get('/users/{user}', [OwnerUserController::class, 'show'])->name('users.show');  // Show user profile
+        Route::put('/users/{user}', [OwnerUserController::class, 'update'])->name('users.update');  // Update user info
+        Route::delete('/users/{user}', [OwnerUserController::class, 'destroy'])->name('users.destroy');  // Delete user
+
+        Route::get('/customer/license/{user}', [OwnerUserController::class, 'showLicenseStatus'])->name('customer.license.status');
     });
 
     // Staff routes
@@ -107,16 +108,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/profile/update', [StaffController::class, 'update'])->name('profile.update');
 
         Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings');
-        Route::get('/users', [StaffUserController::class, 'index'])->name('users');
         Route::get('/vehicles', [StaffVehicleController::class, 'index'])->name('vehicles');
         Route::get('/fleet', [StaffFleetController::class, 'index'])->name('fleet');
-        Route::get('/reports', [StaffReportController::class, 'index'])->name('reports');
     });
 });
 
 /*
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 | Auth Routes
-|--------------------------------------------------------------------------
+|-------------------------------------------------------------------------- 
 */
 require __DIR__.'/auth.php';
