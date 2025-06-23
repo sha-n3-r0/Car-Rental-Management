@@ -21,7 +21,7 @@ const AddVehicle = () => {
     late_fee_per_day: '',
     last_service_date: '',
     insurance_expiry_date: '',
-    image_url: '',
+    image: null, 
   });
 
   const [errors, setErrors] = useState({});
@@ -37,8 +37,19 @@ const AddVehicle = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const data = new FormData();
+    for (const key in formData) {
+      if (formData[key] !== null) {
+        data.append(key, formData[key]);
+      }
+    }
+
     axios
-      .post('/owner/vehicles', formData)
+      .post('/owner/vehicles', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       .then(() => {
         Inertia.visit('/owner/vehicles', {
           preserveScroll: true,
@@ -52,6 +63,7 @@ const AddVehicle = () => {
         }
       });
   };
+
 
   return (
     <OwnerLayout>
@@ -256,16 +268,22 @@ const AddVehicle = () => {
             />
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload */}
           <div className="md:col-span-2">
-            <label className="block mb-1">Image URL (optional)</label>
+            <label className="block mb-1">Upload Image</label>
             <input
-              type="text"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleChange}
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  image: e.target.files[0],
+                }))
+              }
               className="w-full border px-3 py-2 rounded"
             />
+            {errors.image && <p className="text-red-600 text-sm">{errors.image}</p>}
           </div>
 
           {/* Submit */}
