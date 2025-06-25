@@ -18,15 +18,18 @@ use App\Http\Controllers\{
     Owner\ReportController as OwnerReportController,
     Staff\BookingController as StaffBookingController,
     Staff\VehicleController as StaffVehicleController,
-    Staff\FleetController as StaffFleetController
+    Staff\FleetController as StaffFleetController,
+    VehicleController as CustomerVehicleController
 };
 
 // Public routes
 Route::get('/', fn () => Inertia::render('Welcome'))->name('home');
-Route::get('/fleet', fn () => Inertia::render('Fleet'))->name('fleet');
+Route::get('/fleet', [CustomerVehicleController::class, 'index'])->name('fleet');
 Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/reserve', fn () => Inertia::render('Reserve'))->name('reserve');
+
+Route::get('/vehicles/{id}', [CustomerVehicleController::class, 'show'])->name('vehicle.show');
 
 Broadcast::routes(['middleware' => ['auth']]);
 
@@ -84,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/vehicles', [OwnerVehicleController::class, 'store'])->name('vehicles.store');
         Route::get('/vehicles/{vehicle}', [OwnerVehicleController::class, 'show'])->name('vehicles.show');
         Route::put('/vehicles/{vehicle}', [OwnerVehicleController::class, 'update'])->name('vehicles.update');
-        Route::delete('/vehicles/{vehicle}', [OwnerVehicleController::class, 'destroy'])->name('owner.vehicles.destroy');
+        Route::delete('/vehicles/{vehicle}', [OwnerVehicleController::class, 'destroy'])->name('vehicles.destroy');
     });
 
     // Staff routes
@@ -95,6 +98,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings');
         Route::get('/vehicles', [StaffVehicleController::class, 'index'])->name('vehicles');
         Route::get('/fleet', [StaffFleetController::class, 'index'])->name('fleet');
+
+        // Vehicle management
+        Route::get('/vehicles/create', [StaffVehicleController::class, 'create'])->name('vehicles.create');
+        Route::post('/vehicles', [StaffVehicleController::class, 'store'])->name('vehicles.store');
+        Route::get('/vehicles/{vehicle}', [StaffVehicleController::class, 'show'])->name('vehicles.show');
+        Route::put('/vehicles/{vehicle}', [StaffVehicleController::class, 'update'])->name('vehicles.update');
     });
 });
 

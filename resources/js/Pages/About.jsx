@@ -4,7 +4,7 @@ import Header from '@/Components/Header';
 import { route } from 'ziggy-js';
 import { Ziggy } from '../ziggy'; 
 export default function About({ auth }) {
-  const contactUrl = route('contact', {}, false, Ziggy);
+  const contactUrl = route('home', {}, false, Ziggy);
 
   return (
     <>

@@ -5,7 +5,7 @@ import { route } from 'ziggy-js';
 import { Ziggy } from '../ziggy';
 
 export default function Contact({ auth }) {
-  const fleetUrl = route('fleet', {}, false, Ziggy);
+  const fleetUrl = route('home', {}, false, Ziggy);
 
   return (
     <>
