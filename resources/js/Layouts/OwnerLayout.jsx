@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
+import { route } from 'ziggy-js'; // ✅ make sure Ziggy is installed and available
 import NotificationBell from '@/Components/NotificationBell';
 
 const OwnerLayout = ({ children }) => {
@@ -52,6 +53,12 @@ const OwnerLayout = ({ children }) => {
                 <Link href={route('owner.reports')} className="hover:underline">
                   Reports & Analytics
                 </Link>
+              </li>
+              <li>
+                {/* ✅ New Tab for Company Info */}
+                  <Link href="/owner/company-info" className="hover:underline">
+                    Company Profile
+                  </Link>
               </li>
             </ul>
           </nav>

@@ -1,124 +1,125 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import Header from '@/Components/Header'; // Optional: Remove if not needed
+import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
 
 export default function CustomerLogin({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        email: '',
-        password: '',
-        remember: false,
-    });
+  const { data, setData, post, processing, errors } = useForm({
+    email: '',
+    password: '',
+    remember: false,
+  });
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        post(route('login.customer'));
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    post(route('login.customer'));
+  };
 
-    // Redirect to Laravel Socialite Google OAuth
-    const handleGoogleLogin = () => {
-        window.location.href = '/auth/google';
-    };
+  const handleGoogleLogin = () => {
+    window.location.href = '/auth/google';
+  };
 
-    return (
-        <>
-            <Head title="Customer Login" />
-            <div className="min-h-screen bg-white text-black">
-                <Header auth={auth} /> {/* Optional */}
+  return (
+    <>
+      <Head title="Login" />
 
-                <main className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="w-full max-w-md space-y-6">
-                        <h2 className="text-center text-3xl font-extrabold">Customer Login</h2>
+      <div className="min-h-screen bg-white">
+        <Header auth={auth} />
 
-                        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={data.email}
-                                    onChange={e => setData('email', e.target.value)}
-                                    required
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                />
-                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                            </div>
+        <div className="flex items-center justify-center">
+          <div className="flex w-full max-w-5xl h-[700px] rounded-lg shadow-lg overflow-hidden mt-10 mb-20">
+            {/* Left: Login Form */}
+            <div className="w-full md:w-1/2 h-full px-10 py-12 bg-white flex flex-col justify-center">
+              <div className="mb-8 flex justify-center">
+                <img src="/images/headerlogo.png" alt="CL CarHub" className="h-12" />
+              </div>
 
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    onChange={e => setData('password', e.target.value)}
-                                    required
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                />
-                                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-                            </div>
+              <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
 
-                            {errors.email === 'Please verify your email before logging in.' && (
-                                <div>
-                                    <Link
-                                        href={route('verification.notice')}
-                                        className="text-sm text-blue-600 hover:underline"
-                                    >
-                                        Didn’t receive the verification email? Click here.
-                                    </Link>
-                                </div>
-                            )}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    value={data.email}
+                    onChange={e => setData('email', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
 
-                            <div className="flex items-center justify-between">
-                                <label className="flex items-center space-x-2 text-sm">
-                                    <input
-                                        type="checkbox"
-                                        name="remember"
-                                        checked={data.remember}
-                                        onChange={e => setData('remember', e.target.checked)}
-                                    />
-                                    <span>Remember me</span>
-                                </label>
+                <div>
+                  <label className="text-sm font-medium">Password</label>
+                  <input
+                    type="password"
+                    value={data.password}
+                    onChange={e => setData('password', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                </div>
 
-                                <Link
-                                    href={route('password.request')}
-                                    className="text-sm text-blue-600 hover:underline"
-                                >
-                                    Forgot your password?
-                                </Link>
-                            </div>
+                <div className="text-right">
+                  <Link href={route('password.request')} className="text-xs text-purple-600 hover:underline">
+                    Forgot password
+                  </Link>
+                </div>
 
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                {processing ? 'Logging in...' : 'Login'}
-                            </button>
-                        </form>
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="w-full bg-[#F86808] text-white py-2 rounded-full hover:bg-[#e25e07] transition"
+                >
+                  {processing ? 'Logging in...' : 'Login'}
+                </button>
+              </form>
 
-                        {/* Google Login Button */}
-                        <div className="mt-6 flex justify-center">
-                            <button
-                                onClick={handleGoogleLogin}
-                                className="w-full max-w-md flex items-center justify-center space-x-2 border border-gray-300 rounded px-4 py-2 hover:bg-gray-100"
-                                type="button"
-                            >
-                                <svg
-                                    className="w-5 h-5"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                >
-                                    <path
-                                        d="M21.805 10.023h-9.38v3.957h5.388c-.228 1.212-1.615 3.558-5.388 3.558-3.245 0-5.9-2.688-5.9-6s2.655-6 5.9-6c1.843 0 3.08.783 3.79 1.46l2.585-2.49C16.165 5.21 14.247 4.46 12.425 4.46 7.703 4.46 4 8.105 4 12.79c0 4.683 3.703 8.33 8.425 8.33 4.845 0 8.067-3.398 8.067-8.187 0-.55-.06-.95-.687-1.01z"
-                                        fill="#4285F4"
-                                    />
-                                </svg>
-                                <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
-                            </button>
-                        </div>
-                    </div>
-                </main>
+              <div className="text-center mt-4 text-sm">
+                Don’t have an account?{' '}
+                <Link href={route('register')} className="text-purple-600 hover:underline">
+                  Sign Up
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-2 my-6">
+                <hr className="flex-grow border-gray-300" />
+                <span className="text-sm text-gray-500">or</span>
+                <hr className="flex-grow border-gray-300" />
+              </div>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={handleGoogleLogin}
+                  className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50"
+                >
+                  <img src="https://img.icons8.com/color/48/000000/google-logo.png" className="h-5 w-5" alt="Google" />
+                  <span className="text-sm">Google</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50"
+                >
+                  <img src="https://img.icons8.com/color/48/000000/facebook-new.png" className="h-5 w-5" alt="Facebook" />
+                  <span className="text-sm">Facebook</span>
+                </button>
+              </div>
             </div>
-        </>
-    );
+
+            {/* Right: Logo Panel */}
+            <div className="hidden md:flex md:w-1/2 h-full bg-[#F86808] items-center justify-center p-10">
+              <img
+                src="https://scontent.fmnl16-1.fna.fbcdn.net/v/t39.30808-6/473263091_122121023654599808_4291320690137782421_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEnCnnjQlOm_S7-mvB7D5YGOdIAbMThI6E50gBsxOEjoazlqk99gxne2LlRlU1vDG6LUANpyitlp_UqRHtiCqBr&_nc_ohc=1_5NR__joToQ7kNvwGFI7ze&_nc_oc=AdlUNwrs2NJU1_2-iwQgcBX3x7ygAx82wgrgMY_bTzTCdbN38B4u0CdHGX5Kq-WElPE&_nc_zt=23&_nc_ht=scontent.fmnl16-1.fna&_nc_gid=J7T3tx4vE-lWOGg-DM5zyw&oh=00_AfOy_Cr-1KxzF5DuLfiCTLPSdz6SkAMjfB0KJ3qEU5fw0A&oe=68667484"
+                alt="CL CarHub"
+                className="w-3/4 max-w-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </>
+  );
 }

@@ -1,115 +1,139 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
-import { useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
 
 export default function CustomerRegister({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
-        role: 'customer',
-    });
+  const { data, setData, post, processing, errors } = useForm({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+    role: 'customer',
+  });
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        post(route('register.customer'));
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    post(route('register.customer'));
+  };
 
-    const handleGoogleLogin = () => {
-        window.location.href = '/auth/google';
-    };
+  const handleGoogleLogin = () => {
+    window.location.href = '/auth/google';
+  };
 
-    return (
-        <>
-            <Head title="Customer Registration" />
-            <div className="min-h-screen bg-white text-black">
-                <Header auth={auth} />
+  return (
+    <>
+      <Head title="Register" />
 
-                <main className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="w-full max-w-md space-y-6">
-                        <h2 className="text-center text-3xl font-extrabold">Customer Registration</h2>
+      <div className="min-h-screen bg-white">
+        <Header auth={auth} />
 
-                        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={data.name}
-                                    onChange={e => setData('name', e.target.value)}
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                    required
-                                />
-                                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                            </div>
+        <div className="flex items-center justify-center">
+          <div className="flex w-full max-w-5xl h-[700px] rounded-lg shadow-lg overflow-hidden mt-10 mb-20">
+            {/* Left: Registration Form */}
+            <div className="w-full md:w-1/2 h-full px-10 py-12 bg-white flex flex-col justify-center">
+              <div className="mb-6 flex justify-center">
+                <img src="/images/headerlogo.png" alt="CL CarHub" className="h-12" />
+              </div>
 
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={data.email}
-                                    onChange={e => setData('email', e.target.value)}
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                    required
-                                />
-                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                            </div>
+              <h2 className="text-2xl font-bold text-center mb-6">Create an Account</h2>
 
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    onChange={e => setData('password', e.target.value)}
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                    required
-                                />
-                                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-                            </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Name</label>
+                  <input
+                    type="text"
+                    value={data.name}
+                    onChange={e => setData('name', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                </div>
 
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    name="password_confirmation"
-                                    value={data.password_confirmation}
-                                    onChange={e => setData('password_confirmation', e.target.value)}
-                                    className="w-full border border-gray-300 rounded px-3 py-2"
-                                    required
-                                />
-                                {errors.password_confirmation && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.password_confirmation}</p>
-                                )}
-                            </div>
+                <div>
+                  <label className="text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    value={data.email}
+                    onChange={e => setData('email', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
 
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 disabled:opacity-50"
-                            >
-                                {processing ? 'Registering...' : 'Register'}
-                            </button>
-                        </form>
+                <div>
+                  <label className="text-sm font-medium">Password</label>
+                  <input
+                    type="password"
+                    value={data.password}
+                    onChange={e => setData('password', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                </div>
 
-                        {/* Divider */}
-                        <div className="flex items-center justify-center">
-                            <span className="text-gray-500 text-sm">or</span>
-                        </div>
+                <div>
+                  <label className="text-sm font-medium">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={data.password_confirmation}
+                    onChange={e => setData('password_confirmation', e.target.value)}
+                    required
+                    className="w-full border-b-2 border-black py-2 px-1 focus:outline-none"
+                  />
+                  {errors.password_confirmation && (
+                    <p className="text-red-500 text-sm mt-1">{errors.password_confirmation}</p>
+                  )}
+                </div>
 
-                        {/* Google Sign-In Button */}
-                        <button
-                            onClick={handleGoogleLogin}
-                            className="w-full border border-gray-300 text-black py-2 px-4 rounded hover:bg-gray-100"
-                        >
-                            Sign in with Google
-                        </button>
-                    </div>
-                </main>
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="w-full bg-[#F86808] text-white py-2 rounded-full hover:bg-[#e25e07] transition"
+                >
+                  {processing ? 'Registering...' : 'Register'}
+                </button>
+              </form>
+
+              <div className="text-center mt-4 text-sm">
+                Already have an account?{' '}
+                <Link href={route('login')} className="text-purple-600 hover:underline">
+                  Login
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-2 my-6">
+                <hr className="flex-grow border-gray-300" />
+                <span className="text-gray-500 text-sm">or</span>
+                <hr className="flex-grow border-gray-300" />
+              </div>
+
+              <button
+                onClick={handleGoogleLogin}
+                className="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-50 w-full justify-center"
+              >
+                <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google" className="h-5 w-5" />
+                <span className="text-sm">Sign up with Google</span>
+              </button>
             </div>
-        </>
-    );
+
+            {/* Right: Brand/Visual Side */}
+            <div className="hidden md:flex md:w-1/2 h-full bg-[#F86808] items-center justify-center p-10">
+              <img
+                src="https://scontent.fmnl16-1.fna.fbcdn.net/v/t39.30808-6/473263091_122121023654599808_4291320690137782421_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEnCnnjQlOm_S7-mvB7D5YGOdIAbMThI6E50gBsxOEjoazlqk99gxne2LlRlU1vDG6LUANpyitlp_UqRHtiCqBr&_nc_ohc=1_5NR__joToQ7kNvwGFI7ze&_nc_oc=AdlUNwrs2NJU1_2-iwQgcBX3x7ygAx82wgrgMY_bTzTCdbN38B4u0CdHGX5Kq-WElPE&_nc_zt=23&_nc_ht=scontent.fmnl16-1.fna&_nc_gid=J7T3tx4vE-lWOGg-DM5zyw&oh=00_AfOy_Cr-1KxzF5DuLfiCTLPSdz6SkAMjfB0KJ3qEU5fw0A&oe=68667484"
+                alt="CL CarHub Visual"
+                className="w-3/4 max-w-xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </>
+  );
 }
+

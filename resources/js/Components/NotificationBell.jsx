@@ -20,6 +20,7 @@ export default function NotificationBell() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Listen for incoming notifications
   useEffect(() => {
     if (!auth.user) return;
 
@@ -35,6 +36,7 @@ export default function NotificationBell() {
     };
   }, [auth.user]);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -70,18 +72,17 @@ export default function NotificationBell() {
       });
   };
 
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setDropdownOpen((open) => !open)}
-        className="relative focus:outline-none"
+        className="relative text-[#F86808] focus:outline-none"
         aria-label="Notifications"
         title="Notifications"
       >
         {/* Bell Icon */}
         <svg
-          className="w-6 h-6 text-gray-700"
+          className="w-6 h-6"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"

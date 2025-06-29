@@ -8,18 +8,27 @@ use Illuminate\Http\Request;
 
 class VehicleController extends Controller
 {
-    // Display the list of vehicles
-    public function index()
+    public function welcome()
     {
-        // Fetch all vehicles with only relevant customer data
         $vehicles = Vehicle::all()->map(function ($vehicle) {
-            // Only include necessary fields
-            $vehicle->show_url = route('vehicle.show', $vehicle->id); // Vehicle detail page URL
-            return $vehicle->only(['id', 'make', 'model', 'license_plate', 'image_url', 'odometer', 'rental_rate_per_day', 'status', 'show_url']);
+            $vehicle->show_url = route('vehicle.show', $vehicle->id);
+            return $vehicle->only([
+                'id',
+                'make',
+                'model',
+                'license_plate',
+                'image_url',
+                'odometer',
+                'rental_rate_per_day',
+                'status',
+                'show_url',
+                'seats',      // Make sure your Vehicle model/table has this
+                'doors',      // and this
+                'transmission' // and this
+            ]);
         });
 
-        // Return the Fleet page with the vehicles data
-        return Inertia::render('Fleet', [
+        return Inertia::render('Welcome', [
             'vehicles' => $vehicles,
         ]);
     }

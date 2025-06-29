@@ -8,9 +8,11 @@ use App\Http\Controllers\{
     CustomerController,
     StaffController,
     OwnerController,
+    GuestController,
     Auth\AuthenticatedSessionController,
     Auth\RegisteredUserController,
     Auth\GoogleController,
+    Owner\CompanyInfoController,
     Owner\BookingController as OwnerBookingController,
     Owner\UserController as OwnerUserController,
     Owner\VehicleController as OwnerVehicleController,
@@ -23,10 +25,10 @@ use App\Http\Controllers\{
 };
 
 // Public routes
-Route::get('/', fn () => Inertia::render('Welcome'))->name('home');
-Route::get('/fleet', [CustomerVehicleController::class, 'index'])->name('fleet');
-Route::get('/contact', fn () => Inertia::render('Contact'))->name('contact');
-Route::get('/about', fn () => Inertia::render('About'))->name('about');
+Route::get('/', [CustomerVehicleController::class, 'welcome'])->name('home');
+Route::get('/fleet', [GuestController::class, 'fleet'])->name('fleet');
+Route::get('/contact', [CompanyInfoController::class, 'contact'])->name('contact');
+Route::get('/about', [GuestController::class, 'about'])->name('about');
 Route::get('/reserve', fn () => Inertia::render('Reserve'))->name('reserve');
 
 Route::get('/vehicles/{id}', [CustomerVehicleController::class, 'show'])->name('vehicle.show');
@@ -66,6 +68,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Profile
         Route::get('/profile', [OwnerController::class, 'edit'])->name('profile');
         Route::post('/profile/update', [OwnerController::class, 'update'])->name('profile.update');
+        
+        Route::get('/company-info', [CompanyInfoController::class, 'index'])->name('owner.company.info');
+        Route::post('/company-info/{companyInfo}', [CompanyInfoController::class, 'update'])->name('owner.company.info.update');
 
         // Main pages
         Route::get('/bookings', [OwnerBookingController::class, 'index'])->name('bookings');
