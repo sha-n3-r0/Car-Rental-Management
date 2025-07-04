@@ -1,18 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePage, router } from '@inertiajs/react';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
 import axios from 'axios';
 import { route } from 'ziggy-js';
-
-window.Pusher = Pusher;
-
-const echo = new Echo({
-  broadcaster: 'pusher',
-  key: 'afd4862cb9a45f6dc62e',
-  cluster: 'ap1',
-  encrypted: true,
-});
 
 export default function NotificationBell() {
   const { auth } = usePage().props;
@@ -20,23 +9,25 @@ export default function NotificationBell() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Listen for incoming notifications
+  // ✅ Listen for incoming notifications
   useEffect(() => {
-    if (!auth.user) return;
+    if (!auth.user || !window.Echo) return;
 
-    const channel = echo.private(`App.Models.User.${auth.user.id}`);
+    const channelName = `App.Models.User.${auth.user.id}`;
+    const channel = window.Echo.private(channelName);
 
     channel.notification((notification) => {
       console.log("Received live notification:", notification);
       setNotifications((prev) => [notification, ...prev]);
     });
 
+    // ✅ Clean up when component unmounts
     return () => {
-      echo.leave(`App.Models.User.${auth.user.id}`);
+      window.Echo.leave(channelName);
     };
   }, [auth.user]);
 
-  // Close dropdown when clicking outside
+  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -60,10 +51,8 @@ export default function NotificationBell() {
         } else if (notif.data?.url) {
           router.visit(notif.data.url);
         } else if (notif.data?.user_id) {
-          // Example: owner user show page
           router.visit(route('owner.users.show', notif.data.user_id));
         } else {
-          // fallback to dashboard or homepage
           router.visit(route('dashboard'));
         }
       })

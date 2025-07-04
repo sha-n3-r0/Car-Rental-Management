@@ -29,6 +29,7 @@
         "@vitejs/plugin-react": "^4.5.0",
         "laravel-echo": "^2.1.6",
         "pusher-js": "^8.4.0",
+        "react-datepicker": "^8.4.0",
         "react-router-dom": "^7.6.2",
         "ziggy-js": "^2.5.3"
     }

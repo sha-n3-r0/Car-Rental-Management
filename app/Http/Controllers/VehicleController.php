@@ -36,17 +36,34 @@ class VehicleController extends Controller
     // Display details of a single vehicle
     public function show($id)
     {
-        // Fetch the vehicle by ID or fail if not found
         $vehicle = Vehicle::findOrFail($id);
 
-        // Only send necessary fields for customer view
         $vehicleData = $vehicle->only([
-            'make', 'model', 'license_plate', 'image_url', 'odometer', 'rental_rate_per_day', 'status'
+            'id', 'make', 'model', 'license_plate', 'image_url', 'odometer',
+            'rental_rate_per_day', 'status', 'seats', 'doors', 'transmission'
         ]);
 
-        // Render the VehicleDetail page and pass the vehicle data
         return Inertia::render('VehicleDetail', [
             'vehicle' => $vehicleData,
         ]);
+    }
+
+    public function apiShow($id)
+    {
+        $vehicle = Vehicle::find($id);
+
+        if (!$vehicle) {
+            return response()->json(['message' => 'Vehicle not found.'], 404);
+        }
+
+        return response()->json([
+            'vehicle' => $vehicle
+        ]);
+    }
+    
+    public function apiIndex()
+    {
+        $vehicles = Vehicle::all(); // Or apply any filters for availability or type
+        return response()->json($vehicles);
     }
 }

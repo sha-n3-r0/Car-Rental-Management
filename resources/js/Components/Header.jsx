@@ -63,7 +63,7 @@ export default function Header({ auth }) {
           <nav className="hidden lg:flex lg:space-x-6">
             <NavLink href="/" label="Home" />
             <NavLink href="/fleet" label="Fleet" />
-            <NavLink href="/reserve" label="Reserve" />
+            {auth?.user && <NavLink href="/reserve" label="Reserve" />}
             <NavLink href="/contact" label="Contact Us" />
             <NavLink href="/about" label="About Us" />
           </nav>

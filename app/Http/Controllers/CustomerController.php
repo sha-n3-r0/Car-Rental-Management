@@ -13,9 +13,28 @@ use App\Notifications\EmailChangeRequest;
 use App\Notifications\PasswordChangedNotification;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Booking;
+use App\Models\Reservation;
 
 class CustomerController extends Controller
 {
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        // Get all reservations for this user with vehicle eager loaded
+        $reservations = Reservation::where('user_id', $user->id)
+            ->with('vehicle') // eager load vehicle relation
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('Customer/Dashboard', [
+            'message' => 'Your Reservations',
+            'auth' => ['user' => $user],
+            'reservations' => $reservations,
+        ]);
+    }
+
     public function edit()
     {
         $user = Auth::user();
