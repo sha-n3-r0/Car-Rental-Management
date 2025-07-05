@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Vehicle;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 
 class VehicleController extends Controller
 {
+    // Welcome page - fetch and display all vehicles
     public function welcome()
     {
         $vehicles = Vehicle::all()->map(function ($vehicle) {
@@ -22,9 +24,9 @@ class VehicleController extends Controller
                 'rental_rate_per_day',
                 'status',
                 'show_url',
-                'seats',      // Make sure your Vehicle model/table has this
-                'doors',      // and this
-                'transmission' // and this
+                'seats',
+                'doors',
+                'transmission',
             ]);
         });
 
@@ -33,7 +35,7 @@ class VehicleController extends Controller
         ]);
     }
 
-    // Display details of a single vehicle
+    // Show vehicle details
     public function show($id)
     {
         $vehicle = Vehicle::findOrFail($id);
@@ -48,6 +50,7 @@ class VehicleController extends Controller
         ]);
     }
 
+    // API endpoint for showing a vehicle's details
     public function apiShow($id)
     {
         $vehicle = Vehicle::find($id);
@@ -60,10 +63,48 @@ class VehicleController extends Controller
             'vehicle' => $vehicle
         ]);
     }
-    
+
+    // API endpoint for fetching all vehicles
     public function apiIndex()
     {
-        $vehicles = Vehicle::all(); // Or apply any filters for availability or type
+        $vehicles = Vehicle::all();
         return response()->json($vehicles);
+    }
+
+    // Search for available vehicles based on date range
+    public function search(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        // Ensure both start and end date are provided
+        if (!$startDate || !$endDate) {
+            return redirect()->route('home')->withErrors('Start and end date are required.');
+        }
+
+        // Get the list of vehicles that are already booked during the date range
+        $bookedVehicleIds = Reservation::where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('start_date', [$startDate, $endDate])
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($q) use ($startDate, $endDate) {
+                    $q->where('start_date', '<=', $startDate)
+                        ->where('end_date', '>=', $endDate);
+                });
+        })->pluck('vehicle_id'); // Only the vehicle IDs that are booked
+
+        // Fetch vehicles that are not booked during the selected date range
+        $availableVehicles = Vehicle::whereNotIn('id', $bookedVehicleIds)
+            ->get()
+            ->map(function ($vehicle) {
+                $vehicle->show_url = route('vehicle.show', $vehicle->id);
+                return $vehicle;
+            });
+
+        // Return the available vehicles and the search parameters to the frontend
+        return Inertia::render('SearchVehicle', [
+            'vehicles' => $availableVehicles,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+        ]);
     }
 }

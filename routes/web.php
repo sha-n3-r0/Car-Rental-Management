@@ -36,6 +36,8 @@ Route::get('/vehicles/{id}', [CustomerVehicleController::class, 'show'])->name('
 Route::get('/api/vehicles/{id}', [CustomerVehicleController::class, 'apiShow']);
 Route::get('/vehicles/{vehicle}/availability', [ReservationController::class, 'checkAvailability']);
 
+Route::get('/search-vehicles', [CustomerVehicleController::class, 'search'])->name('vehicles.search');
+
 // Broadcasting routes with authentication middleware
 Broadcast::routes(['middleware' => ['auth']]);
 
